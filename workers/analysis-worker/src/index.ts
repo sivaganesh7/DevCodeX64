@@ -14,6 +14,7 @@ import { VulnerabilityScanner } from './security-analysis/vulnerability-scanner'
 import { SecretScanner } from './security-analysis/secret-scanner';
 import { CodeSecurityScanner } from './security-analysis/code-security-scanner';
 import { RiskAnalyzer } from './security-analysis/risk-analyzer';
+import { MLRiskProcessor } from './ml-risk/ml-risk-processor';
 
 const prisma = new PrismaClient();
 
@@ -334,6 +335,9 @@ analysisQueue.process('ANALYZE_REPOSITORY', async (job) => {
         riskScore
       }
     });
+
+    // 5.6. ML Risk Prediction Phase 7
+    await MLRiskProcessor.process(jobId, repositoryId, files);
 
     // 6. Mark job as COMPLETED
     await prisma.analysisJob.update({

@@ -10,6 +10,7 @@ import { GitHubModule } from './modules/github/github.module'
 import { IngestionModule } from './modules/ingestion/ingestion.module'
 import { AnalysisModule } from './modules/analysis/analysis.module'
 import { SecurityModule } from './modules/security/security.module'
+import { RiskModule } from './modules/risk/risk.module'
 import { BullModule } from '@nestjs/bull'
 
 /**
@@ -39,6 +40,7 @@ import { BullModule } from '@nestjs/bull'
     IngestionModule,
     AnalysisModule,
     SecurityModule,
+    RiskModule,
     // Feature modules registered in subsequent phases — DO NOT add prematurely
   ],
 })

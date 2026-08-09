@@ -1,4 +1,4 @@
-﻿"""DevCodeX64 AI Service — FastAPI Application Entry Point"""
+"""DevCodeX64 AI Service — FastAPI Application Entry Point"""
 
 import logging
 from contextlib import asynccontextmanager
@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.settings import settings
-from app.api.routes import health
+from app.api.routes import health, risk
 
 logging.basicConfig(
     level=logging.DEBUG if settings.environment == "development" else logging.INFO,
@@ -55,11 +55,12 @@ app.add_middleware(
 
 # ── Routes
 app.include_router(health.router, prefix="/health", tags=["Health"])
+app.include_router(risk.router, tags=["Risk"])
 
-# Future phases — uncomment as implemented:
-# from app.api.routes import embeddings, rag, ml, review, agent, tests, documentation
-# app.include_router(embeddings.router,    prefix="/embed",         tags=["Embeddings"])
-# app.include_router(rag.router,           prefix="/rag",           tags=["RAG"])
+from app.api.routes import embeddings, rag
+app.include_router(embeddings.router,    prefix="/embed",         tags=["Embeddings"])
+app.include_router(rag.router,           prefix="/rag",           tags=["RAG"])
+# from app.api.routes import ml, review, agent, tests, documentation
 # app.include_router(ml.router,            prefix="/ml",            tags=["ML"])
 # app.include_router(review.router,        prefix="/review",        tags=["Code Review"])
 # app.include_router(agent.router,         prefix="/agent",         tags=["Agent"])

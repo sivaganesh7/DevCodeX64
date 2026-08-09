@@ -8,6 +8,7 @@ import { SecurityOverview } from '../security/SecurityOverview';
 import { DependenciesList } from '../security/DependenciesList';
 import { VulnerabilitiesList } from '../security/VulnerabilitiesList';
 import { SecretsList } from '../security/SecretsList';
+import { RiskIntelligence } from '../analysis/components/RiskIntelligence';
 
 interface TreeItem {
   path: string;
@@ -54,7 +55,7 @@ export function RepositoryDetailsPage() {
   const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY'>('FILES');
+  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK'>('FILES');
 
   useEffect(() => {
     if (!owner || !repo) return;
@@ -284,6 +285,12 @@ export function RepositoryDetailsPage() {
         >
           <Shield size={16} /> Security
         </button>
+        <button
+          onClick={() => setActiveTab('RISK')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'RISK' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <Activity size={16} /> Risk
+        </button>
       </div>
 
       {error ? (
@@ -395,6 +402,12 @@ export function RepositoryDetailsPage() {
               <SecretsList owner={owner!} repo={repo!} />
               <hr className="border-white/10" />
               <DependenciesList owner={owner!} repo={repo!} />
+            </div>
+          )}
+
+          {activeTab === 'RISK' && (
+            <div className="flex flex-col h-full overflow-y-auto">
+              <RiskIntelligence owner={owner!} repo={repo!} />
             </div>
           )}
         </div>
