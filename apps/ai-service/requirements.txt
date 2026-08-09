@@ -1,0 +1,53 @@
+﻿# Web Framework
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pydantic==2.7.4
+pydantic-settings==2.3.4
+
+# Database
+sqlalchemy==2.0.31
+asyncpg==0.29.0
+alembic==1.13.2
+pgvector==0.3.2
+
+# Redis
+redis==5.0.7
+celery==5.4.0
+
+# AI / LLM
+openai==1.35.13
+anthropic==0.30.0
+langchain==0.2.6
+langchain-openai==0.1.14
+langchain-community==0.2.6
+langchain-core==0.2.10
+
+# Embeddings & Vector Store
+sentence-transformers==3.0.1
+faiss-cpu==1.8.0
+
+# ML
+scikit-learn==1.5.1
+numpy==1.26.4
+pandas==2.2.2
+joblib==1.4.2
+
+# Code Analysis
+tree-sitter==0.22.6
+radon==6.0.1
+bandit==1.7.9
+safety==3.2.3
+
+# HTTP
+httpx==0.27.0
+
+# Utils
+python-dotenv==1.0.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.9
+
+# Testing
+pytest==8.2.2
+pytest-asyncio==0.23.7
+httpx==0.27.0

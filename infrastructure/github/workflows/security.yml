@@ -1,0 +1,17 @@
+﻿name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  push:
+    branches: [main]
+
+jobs:
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - run: pnpm audit --audit-level=high

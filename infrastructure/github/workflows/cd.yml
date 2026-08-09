@@ -1,0 +1,17 @@
+﻿name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker images
+        run: docker-compose build
+      - name: Deploy
+        run: echo 'Add your deployment steps here'

@@ -1,0 +1,47 @@
+﻿version: "3.9"
+
+# DevCodeX64 — Docker Compose (Development)
+# Phase 1: Only the infrastructure services required by Phase 1.
+# Additional services (workers, ai-service containers) are added in later phases.
+#
+# Usage:
+#   docker compose up -d        # Start all Phase 1 services
+#   docker compose down         # Stop all services
+#   docker compose logs -f api  # Follow API logs
+
+services:
+  # ─── PostgreSQL (required: Phase 1)
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: devcodex64-postgres
+    environment:
+      POSTGRES_USER:     devcodex64
+      POSTGRES_PASSWORD: devcodex64_secret
+      POSTGRES_DB:       devcodex64
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devcodex64"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis (required: Phase 4+ workers; added now for health-check endpoint)
+  redis:
+    image: redis:7-alpine
+    container_name: devcodex64-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
