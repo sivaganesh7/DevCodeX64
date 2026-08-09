@@ -3,6 +3,7 @@ import { ValidationPipe, Logger } from '@nestjs/common'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
 import helmet from 'helmet'
+import * as cookieParser from 'cookie-parser'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
@@ -14,6 +15,8 @@ async function bootstrap() {
   const port        = configService.get<number>('port', 3001)
   const frontendUrl = configService.get<string>('frontendUrl', 'http://localhost:5173')
   const nodeEnv     = configService.get<string>('nodeEnv', 'development')
+
+  app.use(cookieParser())
 
   // ── Security headers (Helmet)
   app.use(helmet({

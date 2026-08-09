@@ -1,25 +1,29 @@
 {
-    "name":  "devcodex64",
-    "version":  "1.0.0",
-    "private":  true,
-    "description":  "DevCodeX64 — Code Intelligence \u0026 DevSecOps Platform",
-    "scripts":  {
-                    "dev":  "pnpm --parallel --filter=\"@devcodex64/api\" --filter=\"@devcodex64/web\" dev",
-                    "dev:api":  "pnpm --filter=\"@devcodex64/api\" dev",
-                    "dev:web":  "pnpm --filter=\"@devcodex64/web\" dev",
-                    "build":  "pnpm --recursive build",
-                    "lint":  "pnpm --recursive lint",
-                    "test":  "pnpm --recursive test",
-                    "typecheck":  "pnpm --recursive typecheck",
-                    "db:migrate:dev":  "pnpm --filter=\"@devcodex64/api\" db:migrate:dev",
-                    "db:migrate":  "pnpm --filter=\"@devcodex64/api\" db:migrate",
-                    "db:generate":  "pnpm --filter=\"@devcodex64/api\" db:generate",
-                    "db:studio":  "pnpm --filter=\"@devcodex64/api\" db:studio",
-                    "docker:up":  "docker compose up -d",
-                    "docker:down":  "docker compose down",
-                    "docker:logs":  "docker compose logs -f"
-                },
-    "devDependencies":  {
-                            "rimraf":  "^5.0.7"
-                        }
+    "name": "devcodex64",
+    "version": "1.0.0",
+    "private": true,
+    "description": "DevCodeX64 — Code Intelligence & DevSecOps Platform",
+    "scripts": {
+        "dev": "pnpm --parallel --filter=\"@devcodex64/api\" --filter=\"@devcodex64/web\" dev",
+        "dev:api": "pnpm --filter=\"@devcodex64/api\" dev",
+        "dev:web": "pnpm --filter=\"@devcodex64/web\" dev",
+        "build": "pnpm --recursive build",
+        "lint": "pnpm --recursive lint",
+        "test": "pnpm --recursive test",
+        "typecheck": "pnpm --recursive typecheck",
+        "db:migrate:dev": "pnpm --filter=\"@devcodex64/api\" db:migrate:dev",
+        "db:migrate": "pnpm --filter=\"@devcodex64/api\" db:migrate",
+        "db:generate": "pnpm --filter=\"@devcodex64/api\" db:generate",
+        "db:studio": "pnpm --filter=\"@devcodex64/api\" db:studio",
+        "docker:up": "docker compose up -d",
+        "docker:down": "docker compose down",
+        "docker:logs": "docker compose logs -f"
+    },
+    "devDependencies": {
+        "prisma": "5.17.0",
+        "rimraf": "^5.0.7"
+    },
+    "dependencies": {
+        "@prisma/client": "5.17.0"
+    }
 }

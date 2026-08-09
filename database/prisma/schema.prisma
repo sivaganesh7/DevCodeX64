@@ -12,18 +12,268 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User — added here as it is required by Phase 2 (auth).
-// Only defining it now so Phase 2 has a foundation to extend.
+// User — Phase 2: Authentication and Authorization foundation.
 model User {
   id           String   @id @default(uuid()) @db.Uuid
-  githubId     String?  @unique @map("github_id")
-  username     String   @unique
-  email        String?  @unique
-  passwordHash String?  @map("password_hash")
   name         String?
-  avatarUrl    String?  @map("avatar_url")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  githubIntegration GitHubIntegration?
+  repositories      Repository[]
+
   @@map("users")
+}
+
+// Phase 3: GitHub Integration
+model GitHubIntegration {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @unique @map("user_id") @db.Uuid
+  githubUserId   String   @map("github_user_id")
+  githubUsername String   @map("github_username")
+  installationId String   @map("installation_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repositories Repository[]
+
+  @@map("github_integrations")
+}
+
+// Phase 4: Repository Ingestion
+model Repository {
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  githubIntegrationId String?  @map("github_integration_id") @db.Uuid
+  owner               String
+  name                String
+  fullName            String   @map("full_name")
+  githubRepositoryId  String   @map("github_repository_id")
+  defaultBranch       String   @default("main") @map("default_branch")
+  description         String?
+  language            String?
+  visibility          String?
+  htmlUrl             String?  @map("html_url")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  githubIntegration GitHubIntegration? @relation(fields: [githubIntegrationId], references: [id], onDelete: SetNull)
+  files             RepositoryFile[]
+  ingestionJobs     IngestionJob[]
+  analysisJobs      AnalysisJob[]
+
+  @@map("repositories")
+}
+
+model RepositoryFile {
+  id           String   @id @default(uuid()) @db.Uuid
+  repositoryId String   @map("repository_id") @db.Uuid
+  path         String
+  name         String
+  extension    String?
+  language     String?
+  size         Int
+  sha          String
+  fileType     String   @default("SOURCE") @map("file_type")
+  content      String?  @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([repositoryId, path])
+  @@map("repository_files")
+}
+
+model IngestionJob {
+  id             String    @id @default(uuid()) @db.Uuid
+  repositoryId   String    @map("repository_id") @db.Uuid
+  status         String    @default("PENDING") // PENDING, QUEUED, PROCESSING, COMPLETED, FAILED, CANCELLED
+  branch         String    @default("main")
+  totalFiles     Int       @default(0) @map("total_files")
+  processedFiles Int       @default(0) @map("processed_files")
+  skippedFiles   Int       @default(0) @map("skipped_files")
+  failedFiles    Int       @default(0) @map("failed_files")
+  errorMessage   String?   @map("error_message")
+  startedAt      DateTime? @map("started_at")
+  completedAt    DateTime? @map("completed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@map("ingestion_jobs")
+}
+
+// Phase 5: Code Intelligence + Static Analysis Engine
+model AnalysisJob {
+  id           String    @id @default(uuid()) @db.Uuid
+  repositoryId String    @map("repository_id") @db.Uuid
+  status       String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  result       AnalysisResult?
+  metrics      CodeMetric[]
+  issues       Issue[]
+  securityScan SecurityScan?
+
+  @@map("analysis_jobs")
+}
+
+model AnalysisResult {
+  id                   String   @id @default(uuid()) @db.Uuid
+  analysisJobId        String   @unique @map("analysis_job_id") @db.Uuid
+  healthScore          Float?   @map("health_score")
+  maintainabilityScore Float?   @map("maintainability_score")
+  complexityScore      Float?   @map("complexity_score")
+  totalFiles           Int?     @map("total_files")
+  totalLines           Int?     @map("total_lines")
+  languageBreakdown    Json?    @map("language_breakdown") // e.g. { "TypeScript": 60, "Python": 20 }
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  analysisJob AnalysisJob @relation(fields: [analysisJobId], references: [id], onDelete: Cascade)
+
+  @@map("analysis_results")
+}
+
+model CodeMetric {
+  id          String   @id @default(uuid()) @db.Uuid
+  analysisId  String   @map("analysis_id") @db.Uuid
+  filePath    String   @map("file_path")
+  metricType  String   @map("metric_type") // e.g., "loc", "cyclomatic_complexity", "function_count"
+  value       Float
+  details     Json?    // Optional extra info (e.g., function names)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  analysisJob AnalysisJob @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId, filePath])
+  @@map("code_metrics")
+}
+
+model Issue {
+  id           String   @id @default(uuid()) @db.Uuid
+  analysisId   String   @map("analysis_id") @db.Uuid
+  type         String   // e.g., "QUALITY", "COMPLEXITY", "DUPLICATION"
+  severity     String   // e.g., "CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"
+  title        String
+  description  String
+  filePath     String?  @map("file_path")
+  lineNumber   Int?     @map("line_number")
+  ruleId       String?  @map("rule_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  analysisJob AnalysisJob @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId, severity])
+  @@map("issues")
+}
+
+// Phase 6: Security and Dependency Analysis
+
+model SecurityScan {
+  id            String   @id @default(uuid()) @db.Uuid
+  analysisJobId String   @unique @map("analysis_job_id") @db.Uuid
+  riskScore     Float?   @map("risk_score")
+  status        String   @default("PENDING")
+  startedAt     DateTime? @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  analysisJob      AnalysisJob       @relation(fields: [analysisJobId], references: [id], onDelete: Cascade)
+  dependencies     Dependency[]
+  securityFindings SecurityFinding[]
+  secretFindings   SecretFinding[]
+  licenseFindings  LicenseFinding[]
+
+  @@map("security_scans")
+}
+
+model Dependency {
+  id             String   @id @default(uuid()) @db.Uuid
+  securityScanId String   @map("security_scan_id") @db.Uuid
+  name           String
+  version        String
+  ecosystem      String
+  packageManager String   @map("package_manager")
+  isDirect       Boolean  @default(true) @map("is_direct")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  securityScan    SecurityScan    @relation(fields: [securityScanId], references: [id], onDelete: Cascade)
+  vulnerabilities Vulnerability[]
+
+  @@index([securityScanId, name])
+  @@map("dependencies")
+}
+
+model Vulnerability {
+  id             String   @id @default(uuid()) @db.Uuid
+  dependencyId   String   @map("dependency_id") @db.Uuid
+  identifier     String   // e.g. CVE-2023-1234
+  severity       String   // e.g. CRITICAL, HIGH, MEDIUM, LOW
+  affectedRange  String?  @map("affected_range")
+  description    String?  @db.Text
+  recommendation String?  @db.Text
+  referenceUrls  String[] @map("reference_urls")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  dependency Dependency @relation(fields: [dependencyId], references: [id], onDelete: Cascade)
+
+  @@index([dependencyId, severity])
+  @@map("vulnerabilities")
+}
+
+model SecurityFinding {
+  id             String   @id @default(uuid()) @db.Uuid
+  securityScanId String   @map("security_scan_id") @db.Uuid
+  type           String   // e.g. SQL_INJECTION, PATH_TRAVERSAL
+  severity       String
+  title          String
+  description    String   @db.Text
+  filePath       String   @map("file_path")
+  lineNumber     Int?     @map("line_number")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  securityScan SecurityScan @relation(fields: [securityScanId], references: [id], onDelete: Cascade)
+
+  @@index([securityScanId, severity])
+  @@map("security_findings")
+}
+
+model SecretFinding {
+  id             String   @id @default(uuid()) @db.Uuid
+  securityScanId String   @map("security_scan_id") @db.Uuid
+  secretType     String   @map("secret_type") // e.g. GITHUB_TOKEN, AWS_KEY
+  redactedValue  String   @map("redacted_value") // e.g. ghp_****************
+  filePath       String   @map("file_path")
+  lineNumber     Int?     @map("line_number")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  securityScan SecurityScan @relation(fields: [securityScanId], references: [id], onDelete: Cascade)
+
+  @@map("secret_findings")
+}
+
+model LicenseFinding {
+  id             String   @id @default(uuid()) @db.Uuid
+  securityScanId String   @map("security_scan_id") @db.Uuid
+  dependencyName String   @map("dependency_name")
+  licenseType    String   @map("license_type") // e.g. MIT, GPL
+  classification String   // e.g. INFORMATIONAL, CONCERNING, UNKNOWN
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  securityScan SecurityScan @relation(fields: [securityScanId], references: [id], onDelete: Cascade)
+
+  @@map("license_findings")
 }

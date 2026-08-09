@@ -2,6 +2,12 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import { RootLayout } from "../components/layout/RootLayout"
 import { DashboardPage } from "../features/dashboard/DashboardPage"
 import { NotFoundPage } from "../components/common/NotFoundPage"
+import { LoginPage } from "../features/auth/LoginPage"
+import { RegisterPage } from "../features/auth/RegisterPage"
+import { ProtectedRoute } from "../components/layout/ProtectedRoute"
+import { SettingsPage } from "../features/settings/SettingsPage"
+import { RepositoriesPage } from "../features/repositories/RepositoriesPage"
+import { RepositoryDetailsPage } from "../features/repositories/RepositoryDetailsPage"
 
 /**
  * Application router — Phase 1
@@ -11,11 +17,27 @@ import { NotFoundPage } from "../components/common/NotFoundPage"
  */
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+  {
     path: "/",
     element: <RootLayout />,
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: "dashboard", element: <DashboardPage /> },
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: "dashboard", element: <DashboardPage /> },
+          { path: "settings", element: <SettingsPage /> },
+          { path: "repositories", element: <RepositoriesPage /> },
+          { path: "repositories/:owner/:repo", element: <RepositoryDetailsPage /> },
+        ]
+      }
     ],
   },
   {

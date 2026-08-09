@@ -1,4 +1,4 @@
-﻿# DevCodeX64
+# DevCodeX64
 
 **Code Intelligence & DevSecOps Platform**
 
@@ -32,62 +32,62 @@ RAG-powered AI assistant, AI code review, and automated test/documentation gener
 
 ---
 
-## Quick Start (Development)
+## Development Startup Flow
 
-### 1. Clone and install dependencies
+A new developer should be able to follow these exact steps to start the Phase 1 environment:
 
+### 1. Clone repository
 ```bash
 git clone https://github.com/your-org/DevCodeX64.git
 cd DevCodeX64
+```
+
+### 2. Install pnpm
+```bash
+npm install -g pnpm
+```
+
+### 3. Install dependencies
+```bash
 pnpm install
 ```
 
-### 2. Configure environment
-
+### 4. Create .env from .env.example
 ```bash
 cp .env.example .env
-# Edit .env and fill in required secrets:
-#   DATABASE_URL, REDIS_URL, JWT_SECRET,
-#   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
-#   OPENAI_API_KEY (or your preferred LLM provider key)
 ```
+(Edit `.env` if necessary for your local environment).
 
-### 3. Start infrastructure (PostgreSQL + Redis)
-
+### 5. Start Docker Compose
 ```bash
-docker compose up -d postgres redis
+docker compose up -d
 ```
+(This starts PostgreSQL and Redis for local development).
 
-### 4. Run database migrations
-
+### 6. Run Prisma setup/migrations
 ```bash
+pnpm db:generate
 pnpm db:migrate:dev
 ```
 
-### 5. Start all services (development mode)
-
+### 7. Start API
 ```bash
-# Terminal 1: NestJS API
 pnpm --filter=@devcodex64/api dev
-
-# Terminal 2: React frontend
-pnpm --filter=@devcodex64/web dev
-
-# Terminal 3: FastAPI AI service
-cd apps/ai-service
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-
-# Terminal 4: Workers (optional — needed for analysis)
-pnpm --filter=@devcodex64/repository-worker dev
-pnpm --filter=@devcodex64/analysis-worker dev
-pnpm --filter=@devcodex64/embedding-worker dev
 ```
 
-Or use Docker Compose for everything:
-
+### 8. Start React application
+In a new terminal:
 ```bash
-docker compose up
+pnpm --filter=@devcodex64/web dev
+```
+
+### 9. Open application
+Open your browser to: http://localhost:5173
+
+### 10. Verify API health
+Open your browser or run:
+```bash
+curl http://localhost:3001/api/health
 ```
 
 ---

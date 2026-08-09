@@ -4,24 +4,16 @@ import { ThrottlerModule } from '@nestjs/throttler'
 import configuration from './config/configuration'
 import { DatabaseModule } from './database/database.module'
 import { HealthModule } from './modules/health/health.module'
+import { AuthModule } from './modules/auth/auth.module'
+import { UsersModule } from './modules/users/users.module'
+import { GitHubModule } from './modules/github/github.module'
+import { IngestionModule } from './modules/ingestion/ingestion.module'
+import { AnalysisModule } from './modules/analysis/analysis.module'
+import { SecurityModule } from './modules/security/security.module'
+import { BullModule } from '@nestjs/bull'
 
 /**
  * AppModule — Root NestJS module for DevCodeX64 API.
- *
- * Phase 1: Only DatabaseModule and HealthModule are active.
- * Remaining feature modules are added in their respective phases:
- *   Phase 2:  AuthModule, UsersModule
- *   Phase 3:  GithubModule, WebhooksModule
- *   Phase 4:  RepositoriesModule, JobsModule
- *   Phase 5:  AnalysisModule, IssuesModule
- *   Phase 6:  SecurityModule, DependenciesModule
- *   Phase 7:  RiskModule
- *   Phase 8:  AssistantModule
- *   Phase 9:  CodeReviewModule
- *   Phase 10: (Agent tools wired into AssistantModule)
- *   Phase 11: TestGenerationModule
- *   Phase 12: DocumentationModule
- *   Phase 13: PullRequestsModule
  */
 @Module({
   imports: [
@@ -35,6 +27,18 @@ import { HealthModule } from './modules/health/health.module'
     ]),
     DatabaseModule,
     HealthModule,
+    AuthModule,
+    UsersModule,
+    GitHubModule,
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      },
+    }),
+    IngestionModule,
+    AnalysisModule,
+    SecurityModule,
     // Feature modules registered in subsequent phases — DO NOT add prematurely
   ],
 })

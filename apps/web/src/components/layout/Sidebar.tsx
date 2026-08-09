@@ -3,7 +3,7 @@ import { LayoutDashboard, GitBranch, Shield, PackageOpen, Activity, Settings } f
 
 const NAV_ITEMS = [
   { to: "/dashboard",     label: "Dashboard",     icon: LayoutDashboard },
-  { to: "/repositories",  label: "Repositories",  icon: GitBranch,   disabled: true },
+  { to: "/repositories",  label: "Repositories",  icon: GitBranch },
   { to: "/security",      label: "Security",       icon: Shield,      disabled: true },
   { to: "/dependencies",  label: "Dependencies",   icon: PackageOpen, disabled: true },
   { to: "/risk",          label: "Risk",           icon: Activity,    disabled: true },
@@ -53,10 +53,19 @@ export function Sidebar() {
 
       {/* Settings */}
       <div className="border-t border-white/8 p-3">
-        <div className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/30">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+              isActive
+                ? "bg-indigo-600/20 text-indigo-400"
+                : "text-white/60 hover:bg-white/5 hover:text-white"
+            }`
+          }
+        >
           <Settings size={16} />
           <span>Settings</span>
-        </div>
+        </NavLink>
       </div>
     </aside>
   )

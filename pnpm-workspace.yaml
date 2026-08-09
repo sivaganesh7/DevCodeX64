@@ -7,6 +7,7 @@ allowBuilds:
   '@nestjs/core': true
   '@prisma/client': true
   '@prisma/engines': true
+  bcrypt: true
   esbuild: true
   msgpackr-extract: true
   prisma: true
@@ -15,6 +16,7 @@ onlyBuiltDependencies:
   - '@nestjs/core'
   - '@prisma/client'
   - '@prisma/engines'
+  - bcrypt
   - esbuild
   - msgpackr-extract
   - prisma

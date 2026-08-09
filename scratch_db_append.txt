@@ -1,0 +1,70 @@
+### SecurityScan
+
+```
+security_scans
+  id               UUID PK
+  analysis_job_id  UUID FK -> analysis_jobs UNIQUE
+  risk_score       FLOAT NULL
+  status           TEXT
+  started_at       TIMESTAMP
+  completed_at     TIMESTAMP
+  created_at       TIMESTAMP
+  updated_at       TIMESTAMP
+```
+
+### Dependency
+
+```
+dependencies
+  id               UUID PK
+  security_scan_id UUID FK -> security_scans
+  name             TEXT
+  version          TEXT
+  ecosystem        TEXT
+  package_manager  TEXT
+  is_direct        BOOLEAN
+  created_at       TIMESTAMP
+```
+
+### Vulnerability
+
+```
+vulnerabilities
+  id               UUID PK
+  dependency_id    UUID FK -> dependencies
+  identifier       TEXT
+  severity         TEXT
+  affected_range   TEXT NULL
+  description      TEXT NULL
+  recommendation   TEXT NULL
+  reference_urls   TEXT[]
+  created_at       TIMESTAMP
+```
+
+### SecurityFinding
+
+```
+security_findings
+  id               UUID PK
+  security_scan_id UUID FK -> security_scans
+  type             TEXT
+  severity         TEXT
+  title            TEXT
+  description      TEXT
+  file_path        TEXT
+  line_number      INTEGER NULL
+  created_at       TIMESTAMP
+```
+
+### SecretFinding
+
+```
+secret_findings
+  id               UUID PK
+  security_scan_id UUID FK -> security_scans
+  secret_type      TEXT
+  redacted_value   TEXT
+  file_path        TEXT
+  line_number      INTEGER NULL
+  created_at       TIMESTAMP
+```
