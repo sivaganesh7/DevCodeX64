@@ -131,81 +131,73 @@
 ### High-Level System Architecture
 
 ```mermaid
-graph TB
-    subgraph Client["🌐 Client Layer"]
-        WEB["React 18 + Vite<br/>TypeScript + Tailwind CSS<br/>shadcn/ui Components"]
+flowchart TD
+    subgraph ClientLayer["Client Layer"]
+        WEB["React 18 Frontend\nVite + TypeScript + Tailwind"]
     end
 
-    subgraph API["⚙️ API Layer"]
-        NEST["NestJS Backend<br/>REST API + Swagger<br/>JWT Auth + Guards"]
+    subgraph APILayer["API Gateway & Services"]
+        NEST["NestJS Backend API\nREST + Swagger + JWT Auth"]
+        FAST["FastAPI AI Service\nML Prediction + RAG Engine"]
     end
 
-    subgraph AI["🤖 AI/ML Layer"]
-        FAST["FastAPI Service<br/>ML Prediction + RAG<br/>Embedding Generation"]
+    subgraph WorkerLayer["Asynchronous Workers"]
+        RW["Repository Worker\nGit Clone & File Extraction"]
+        AW["Analysis Worker\nAST + Security + ML Process"]
+        EW["Embedding Worker\nCode Vectorization"]
     end
 
-    subgraph Workers["⚡ Worker Layer"]
-        RW["Repository<br/>Worker"]
-        AW["Analysis<br/>Worker"]
-        EW["Embedding<br/>Worker"]
+    subgraph DataLayer["Persistence & Caching"]
+        PG[("PostgreSQL Database\nPrisma ORM")]
+        RD[("Redis Instance\nBullMQ Queues")]
     end
 
-    subgraph Data["💾 Data Layer"]
-        PG[("PostgreSQL<br/>+ Prisma ORM")]
-        RD[("Redis<br/>+ BullMQ")]
-    end
-
-    WEB -->|"HTTP/REST"| NEST
-    NEST -->|"HTTP"| FAST
-    NEST -->|"Queue Jobs"| RD
-    RD -->|"Process Jobs"| RW
-    RD -->|"Process Jobs"| AW
-    RD -->|"Process Jobs"| EW
-    RW -->|"Read/Write"| PG
-    AW -->|"Read/Write"| PG
-    AW -->|"ML Predict"| FAST
-    EW -->|"Embed"| FAST
-    NEST -->|"Read/Write"| PG
-    FAST -->|"Read/Write"| PG
-
-    style Client fill:#1e293b,stroke:#3b82f6,color:#e2e8f0
-    style API fill:#1e293b,stroke:#22c55e,color:#e2e8f0
-    style AI fill:#1e293b,stroke:#a855f7,color:#e2e8f0
-    style Workers fill:#1e293b,stroke:#f59e0b,color:#e2e8f0
-    style Data fill:#1e293b,stroke:#ef4444,color:#e2e8f0
+    WEB -->|HTTP REST| NEST
+    NEST -->|HTTP API| FAST
+    NEST -->|Enqueue Jobs| RD
+    RD -->|Dispatch| RW
+    RD -->|Dispatch| AW
+    RD -->|Dispatch| EW
+    RW -->|Store Files| PG
+    AW -->|Store Metrics & Issues| PG
+    AW -->|Predict Risk| FAST
+    EW -->|Generate Embeddings| FAST
+    NEST -->|Query Data| PG
+    FAST -->|Vector Query| PG
 ```
 
 ### Service Communication Flow
 
 ```mermaid
 sequenceDiagram
-    participant U as 👤 User
-    participant W as 🌐 React Frontend
-    participant A as ⚙️ NestJS API
-    participant Q as 📮 Redis Queue
-    participant RW as 📥 Repo Worker
-    participant AW as 🔬 Analysis Worker
-    participant AI as 🤖 AI Service
-    participant DB as 💾 PostgreSQL
+    autonumber
+    actor User as User
+    participant Web as React Frontend
+    participant API as NestJS API
+    participant Queue as Redis Queue
+    participant RepoWorker as Repo Worker
+    participant AnalysisWorker as Analysis Worker
+    participant AIService as FastAPI AI Service
+    participant DB as PostgreSQL
 
-    U->>W: Connect GitHub & Select Repo
-    W->>A: POST /api/ingestion/start
-    A->>DB: Create IngestionJob
-    A->>Q: Queue INGEST_REPOSITORY
-    Q->>RW: Process Ingestion Job
-    RW->>DB: Clone & Store Files
-    RW->>Q: Queue ANALYZE_REPOSITORY
-    Q->>AW: Process Analysis Job
-    AW->>DB: AST Analysis + Code Metrics
-    AW->>DB: Security Scan + Dependencies
-    AW->>AI: POST /predict-risk (per file)
-    AI-->>AW: Risk Probability + Factors
-    AW->>DB: Store ML Predictions
-    AW->>DB: Mark Job COMPLETED
-    W->>A: GET /api/repositories/:id/analysis
-    A->>DB: Fetch Results
-    A-->>W: Health Scores + Issues + Security + Risk
-    W-->>U: Display Dashboard
+    User->>Web: Connect GitHub & Select Repo
+    Web->>API: POST /api/ingestion/start
+    API->>DB: Create IngestionJob (QUEUED)
+    API->>Queue: Add INGEST_REPOSITORY Job
+    Queue->>RepoWorker: Process Ingestion Job
+    RepoWorker->>DB: Clone & Extract File Tree
+    RepoWorker->>Queue: Add ANALYZE_REPOSITORY Job
+    Queue->>AnalysisWorker: Process Analysis Job
+    AnalysisWorker->>DB: AST Analysis & Code Metrics
+    AnalysisWorker->>DB: Security Scan & Dependencies
+    AnalysisWorker->>AIService: POST /predict-risk (Per File)
+    AIService-->>AnalysisWorker: Risk Probability & Factors
+    AnalysisWorker->>DB: Store ML Risk Predictions
+    AnalysisWorker->>DB: Update AnalysisJob (COMPLETED)
+    Web->>API: GET /api/repositories/:id/analysis
+    API->>DB: Fetch Aggregated Results
+    API-->>Web: Health Scores, Issues, Risk & Security
+    Web-->>User: Render Dashboard
 ```
 
 ---
@@ -216,22 +208,13 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    A["🔗 Connect<br/>GitHub"] --> B["📥 Select<br/>Repository"]
-    B --> C["⚡ Ingest<br/>& Clone"]
-    C --> D["🔍 Analyze<br/>Code"]
-    D --> E["🛡️ Security<br/>Scan"]
-    E --> F["🤖 ML Risk<br/>Predict"]
-    F --> G["📊 View<br/>Dashboard"]
-    G --> H["🧠 Ask AI<br/>Assistant"]
-
-    style A fill:#3b82f6,stroke:#1e40af,color:#fff
-    style B fill:#6366f1,stroke:#4338ca,color:#fff
-    style C fill:#8b5cf6,stroke:#6d28d9,color:#fff
-    style D fill:#a855f7,stroke:#7e22ce,color:#fff
-    style E fill:#d946ef,stroke:#a21caf,color:#fff
-    style F fill:#ec4899,stroke:#be185d,color:#fff
-    style G fill:#f43f5e,stroke:#be123c,color:#fff
-    style H fill:#ef4444,stroke:#b91c1c,color:#fff
+    S1["1. Connect GitHub"] --> S2["2. Select Repository"]
+    S2 --> S3["3. Ingest & Clone"]
+    S3 --> S4["4. Static Code Analysis"]
+    S4 --> S5["5. Security Scan"]
+    S5 --> S6["6. ML Risk Prediction"]
+    S6 --> S7["7. View Dashboard"]
+    S7 --> S8["8. Ask AI Assistant"]
 ```
 
 ### Step-by-Step Workflow
@@ -253,68 +236,37 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    START["📥 Receive Analysis Job"] --> FETCH["Fetch Repository Files<br/>from PostgreSQL"]
-    FETCH --> LOOP{"For Each File"}
+    A1["Receive Analysis Job"] --> A2["Fetch Files from Database"]
+    A2 --> A3{"Is JS / TS File?"}
 
-    LOOP --> LOC["📏 Count LOC"]
-    LOOP --> LANG["🌐 Detect Language"]
-    LOOP --> AST{"JS/TS File?"}
+    A3 -- Yes --> B1["Parse AST with Babel"]
+    B1 --> B2["Calculate Complexity & Smells"]
+    B2 --> B3["Store Code Metrics & Issues"]
 
-    AST -->|Yes| PARSE["Parse AST<br/>(Babel Parser)"]
-    PARSE --> CC["Calculate Cyclomatic<br/>Complexity"]
-    PARSE --> FN["Extract Functions<br/>& Classes"]
-    PARSE --> SMELL["Detect Code<br/>Smells"]
+    A3 -- No --> B4["Compute LOC & Language"]
+    B4 --> B3
 
-    AST -->|No| SKIP["Skip AST Analysis"]
+    B3 --> C1["Security & Dependency Analysis"]
+    C1 --> C2["Scan Secrets & Vulnerabilities"]
+    C2 --> C3["Compute Security Risk Score"]
+    C3 --> C4["Save Security Scan & Findings"]
 
-    LOC --> METRICS["Store CodeMetrics"]
-    CC --> METRICS
-    FN --> METRICS
-    SMELL --> ISSUES["Store Issues"]
-
-    METRICS --> SEC["🛡️ Security Analysis"]
-    ISSUES --> SEC
-    SKIP --> SEC
-
-    SEC --> DEP["Parse Dependencies"]
-    SEC --> SECRET["Scan Secrets"]
-    SEC --> VULN["Scan Vulnerabilities"]
-    SEC --> CODESEC["Code Security Patterns"]
-
-    DEP --> RISK["Calculate Risk Score"]
-    SECRET --> RISK
-    VULN --> RISK
-    CODESEC --> RISK
-
-    RISK --> STORE_SEC["Store SecurityScan<br/>+ Findings"]
-
-    STORE_SEC --> ML["🤖 ML Risk Prediction"]
-    ML --> FEATURES["Extract Features<br/>per File"]
-    FEATURES --> PREDICT["POST /predict-risk<br/>→ FastAPI"]
-    PREDICT --> STORE_ML["Store MLRiskPrediction<br/>+ Factors"]
-
-    STORE_ML --> COMPLETE["✅ Mark Job<br/>COMPLETED"]
-
-    style START fill:#3b82f6,color:#fff
-    style COMPLETE fill:#22c55e,color:#fff
-    style ML fill:#a855f7,color:#fff
-    style SEC fill:#ef4444,color:#fff
+    C4 --> D1["Extract Per-File Feature Vectors"]
+    D1 --> D2["POST /predict-risk to AI Service"]
+    D2 --> D3["Store ML Risk Predictions & Factors"]
+    D3 --> D4["Mark Analysis Job COMPLETED"]
 ```
 
 ### RAG AI Assistant Pipeline
 
 ```mermaid
 flowchart LR
-    Q["❓ User Question"] --> EMB["Generate Question<br/>Embedding"]
-    EMB --> SEARCH["Cosine Similarity<br/>Search over Code Chunks"]
-    SEARCH --> TOP["Select Top 8<br/>Most Relevant Chunks"]
-    TOP --> CTX["Build Context<br/>with Source Metadata"]
-    CTX --> LLM["LLM Generation<br/>with System Prompt"]
-    LLM --> ANS["📝 Answer<br/>+ Confidence + Sources"]
-
-    style Q fill:#6366f1,color:#fff
-    style ANS fill:#22c55e,color:#fff
-    style LLM fill:#a855f7,color:#fff
+    Q["User Question"] --> E["Generate Embedding"]
+    E --> V["Cosine Similarity Search"]
+    V --> C["Retrieve Top Code Chunks"]
+    C --> P["Construct Augmented Prompt"]
+    P --> L["LLM Response Generation"]
+    L --> R["Answer with Citations"]
 ```
 
 ---
@@ -322,42 +274,34 @@ flowchart LR
 ## 🛠️ Technology Stack
 
 ```mermaid
-mindmap
-  root((DevCodeX64))
-    Frontend
-      React 18
-      Vite
-      TypeScript
-      Tailwind CSS
-      shadcn/ui
-      React Router
-    Backend
-      NestJS
-      TypeScript
-      Prisma ORM
-      Swagger/OpenAPI
-      BullMQ
-    AI/ML Service
-      FastAPI
-      Python 3.11+
-      Scikit-learn
-      pgvector
-      OpenAI Embeddings
-      LLM Integration
-    Data Layer
-      PostgreSQL
-      Redis
-      Prisma Migrations
-    Workers
-      Repository Worker
-      Analysis Worker
-      Embedding Worker
-      Babel AST Parser
-    DevOps
-      Docker
-      Docker Compose
-      GitHub Actions
-      pnpm Monorepo
+flowchart TD
+    subgraph Frontend["Frontend Layer"]
+        F1["React 18 + Vite"]
+        F2["TypeScript"]
+        F3["Tailwind CSS + shadcn/ui"]
+        F4["React Router 6"]
+    end
+
+    subgraph Backend["Backend Layer"]
+        B1["NestJS Framework"]
+        B2["Prisma ORM"]
+        B3["Swagger OpenAPI"]
+        B4["BullMQ + Redis"]
+    end
+
+    subgraph AI["AI / ML Layer"]
+        M1["FastAPI Python 3.11"]
+        M2["Scikit-Learn (Random Forest)"]
+        M3["OpenAI Embeddings / LLM"]
+        M4["pgvector / Cosine Similarity"]
+    end
+
+    subgraph Infrastructure["Infrastructure Layer"]
+        I1["PostgreSQL 16"]
+        I2["Redis 7"]
+        I3["Docker & Compose"]
+        I4["pnpm Workspaces"]
+    end
 ```
 
 | Layer | Technology | Purpose |
@@ -387,15 +331,11 @@ mindmap
 
 ```mermaid
 flowchart LR
-    A["1️⃣ Clone"] --> B["2️⃣ Install<br/>Dependencies"]
-    B --> C["3️⃣ Configure<br/>Environment"]
-    C --> D["4️⃣ Start<br/>Docker"]
-    D --> E["5️⃣ Setup<br/>Database"]
-    E --> F["6️⃣ Start<br/>Services"]
-    F --> G["7️⃣ Open<br/>Browser 🚀"]
-
-    style A fill:#3b82f6,color:#fff
-    style G fill:#22c55e,color:#fff
+    Step1["1. Clone Repo"] --> Step2["2. Install Dependencies"]
+    Step2 --> Step3["3. Configure .env"]
+    Step3 --> Step4["4. Start Docker"]
+    Step4 --> Step5["5. Run Migrations"]
+    Step5 --> Step6["6. Start Dev Servers"]
 ```
 
 #### 1️⃣ Clone the repository
@@ -597,8 +537,8 @@ DevCodeX64/
 
 ```mermaid
 pie title Implementation Progress
-    "✅ Completed (8 phases)" : 8
-    "⏳ Remaining (12 phases)" : 12
+    "Completed (8 phases)" : 8
+    "Remaining (12 phases)" : 12
 ```
 
 ### Database Schema Coverage
@@ -660,51 +600,29 @@ erDiagram
 ### Phase Dependency Graph
 
 ```mermaid
-graph TD
-    P0["Phase 0<br/>✅ Architecture"] --> P1["Phase 1<br/>✅ Foundation"]
-    P1 --> P2["Phase 2<br/>✅ Authentication"]
-    P2 --> P3["Phase 3<br/>✅ GitHub Integration"]
-    P3 --> P4["Phase 4<br/>✅ Repository Ingestion"]
-    P4 --> P5["Phase 5<br/>✅ Code Intelligence"]
-    P4 --> P6["Phase 6<br/>✅ Security Analysis"]
-    P4 --> P8["Phase 8<br/>✅ RAG Intelligence"]
-    P5 --> P7["Phase 7<br/>✅ ML Risk Prediction"]
-    P6 --> P9["Phase 9<br/>🔄 Code Review"]
+flowchart TD
+    P0["Phase 0: Architecture (Complete)"] --> P1["Phase 1: Foundation (Complete)"]
+    P1 --> P2["Phase 2: Authentication (Complete)"]
+    P2 --> P3["Phase 3: GitHub Integration (Complete)"]
+    P3 --> P4["Phase 4: Repository Ingestion (Complete)"]
+    P4 --> P5["Phase 5: Code Intelligence (Complete)"]
+    P4 --> P6["Phase 6: Security Analysis (Complete)"]
+    P4 --> P8["Phase 8: RAG Intelligence (Complete)"]
+    P5 --> P7["Phase 7: ML Risk Prediction (Complete)"]
+    P6 --> P9["Phase 9: Code Review (Next)"]
     P8 --> P9
-    P9 --> P10["Phase 10<br/>⏳ AI Agent"]
-    P10 --> P11["Phase 11<br/>⏳ Test Gen"]
-    P10 --> P12["Phase 12<br/>⏳ Doc Gen"]
-    P6 --> P13["Phase 13<br/>⏳ PR Automation"]
+    P9 --> P10["Phase 10: AI Agent (Planned)"]
+    P10 --> P11["Phase 11: Test Gen (Planned)"]
+    P10 --> P12["Phase 12: Doc Gen (Planned)"]
+    P6 --> P13["Phase 13: PR Automation (Planned)"]
     P9 --> P13
-    P13 --> P14["Phase 14<br/>⏳ CI/CD Intel"]
-    P14 --> P15["Phase 15<br/>⏳ Dashboard UX"]
-    P15 --> P16["Phase 16<br/>⏳ E2E Testing"]
-    P16 --> P17["Phase 17<br/>⏳ Observability"]
-    P17 --> P18["Phase 18<br/>⏳ Docker + CI"]
-    P18 --> P19["Phase 19<br/>⏳ Security Audit"]
-    P19 --> P20["Phase 20<br/>⏳ Production"]
-
-    style P0 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P1 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P2 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P3 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P4 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P5 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P6 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P7 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P8 fill:#22c55e,stroke:#16a34a,color:#fff
-    style P9 fill:#f59e0b,stroke:#d97706,color:#fff
-    style P10 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P11 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P12 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P13 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P14 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P15 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P16 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P17 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P18 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P19 fill:#6b7280,stroke:#4b5563,color:#fff
-    style P20 fill:#6b7280,stroke:#4b5563,color:#fff
+    P13 --> P14["Phase 14: CI/CD Intel (Planned)"]
+    P14 --> P15["Phase 15: Dashboard UX (Planned)"]
+    P15 --> P16["Phase 16: E2E Testing (Planned)"]
+    P16 --> P17["Phase 17: Observability (Planned)"]
+    P17 --> P18["Phase 18: Docker & CI (Planned)"]
+    P18 --> P19["Phase 19: Security Audit (Planned)"]
+    P19 --> P20["Phase 20: Production (Planned)"]
 ```
 
 ---
