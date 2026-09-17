@@ -1,6 +1,6 @@
-# DevOpsAI / CodePilot Enterprise
+# DevCodeX64 / CodePilot Enterprise
 
-## AI-Powered Software Engineering & DevOps Platform
+## DevCodeX64:  Code Intelligence & DevSecOps Platform
 
 **Project Type:** Full-Stack + AI/ML + Generative AI + RAG + AI Agents + DevOps  
 **Development Platform:** Google Antigravity  

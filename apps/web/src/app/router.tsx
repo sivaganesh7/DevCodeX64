@@ -8,12 +8,11 @@ import { ProtectedRoute } from "../components/layout/ProtectedRoute"
 import { SettingsPage } from "../features/settings/SettingsPage"
 import { RepositoriesPage } from "../features/repositories/RepositoriesPage"
 import { RepositoryDetailsPage } from "../features/repositories/RepositoryDetailsPage"
+import { AssistantPage } from "../features/assistant/AssistantPage"
+import { ReviewPage } from "../features/code-review/ReviewPage"
 
 /**
- * Application router — Phase 1
- *
- * Only the Dashboard (application shell) is active.
- * Auth routes, repository routes, etc. are added in Phases 2–4.
+ * Application router — Phase 9
  */
 export const router = createBrowserRouter([
   {
@@ -36,6 +35,8 @@ export const router = createBrowserRouter([
           { path: "settings", element: <SettingsPage /> },
           { path: "repositories", element: <RepositoriesPage /> },
           { path: "repositories/:owner/:repo", element: <RepositoryDetailsPage /> },
+          { path: "repositories/:owner/:repo/assistant", element: <AssistantPage /> },
+          { path: "repositories/:owner/:repo/review", element: <ReviewPage /> },
         ]
       }
     ],

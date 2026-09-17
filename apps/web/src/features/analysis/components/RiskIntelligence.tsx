@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, ShieldAlert, Activity, FileWarning, Search } from 'lucide-react';
+import { ShieldAlert, Activity, FileWarning, Search } from 'lucide-react';
 import apiClient from '../../../lib/api-client';
 
 interface RiskFactor {

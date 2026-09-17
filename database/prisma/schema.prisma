@@ -24,6 +24,7 @@ model User {
   githubIntegration GitHubIntegration?
   repositories      Repository[]
   Conversation      Conversation[]
+  codeReviews       CodeReview[]
 
   @@map("users")
 }
@@ -68,6 +69,8 @@ model Repository {
   analysisJobs      AnalysisJob[]
   CodeChunk         CodeChunk[]
   Conversation      Conversation[]
+  codeReviews       CodeReview[]
+  pullRequests      PullRequest[]
 
   @@map("repositories")
 }
@@ -382,4 +385,71 @@ model AIResponse {
   message ConversationMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@map("ai_responses")
+}
+
+// Phase 9: Intelligent Code Review
+
+model CodeReview {
+  id            String   @id @default(uuid()) @db.Uuid
+  repositoryId  String   @map("repository_id") @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  filePath      String?  @map("file_path")
+  prNumber      Int?     @map("pr_number")
+  reviewType    String   @map("review_type") // FILE, PR
+  summary       String   @db.Text
+  overallRating String   @map("overall_rating") // EXCELLENT, GOOD, NEEDS_WORK, POOR
+  issuesCount   Int      @default(0) @map("issues_count")
+  reviewData    Json     @map("review_data")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId, reviewType])
+  @@map("code_reviews")
+}
+
+model PullRequest {
+  id              String              @id @default(uuid()) @db.Uuid
+  repositoryId    String              @map("repository_id") @db.Uuid
+  githubPrId      Int?                @map("github_pr_id")
+  number          Int
+  title           String
+  body            String?             @db.Text
+  state           String              @default("open") // open, closed, merged
+  author          String?
+  baseBranch      String              @default("main") @map("base_branch")
+  headBranch      String              @default("feature") @map("head_branch")
+  htmlUrl         String?             @map("html_url")
+  githubCreatedAt DateTime?           @map("github_created_at")
+  githubUpdatedAt DateTime?           @map("github_updated_at")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  repository Repository          @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  reviews    PullRequestReview[]
+
+  @@unique([repositoryId, number])
+  @@index([repositoryId, state])
+  @@map("pull_requests")
+}
+
+model PullRequestReview {
+  id              String    @id @default(uuid()) @db.Uuid
+  pullRequestId   String    @map("pull_request_id") @db.Uuid
+  analysisId      String?   @map("analysis_id") @db.Uuid
+  summary         String?   @db.Text
+  riskLevel       String?   @map("risk_level") // LOW, MEDIUM, HIGH, CRITICAL
+  issuesFound     Int       @default(0) @map("issues_found")
+  securityIssues  Int       @default(0) @map("security_issues")
+  reviewData      Json?     @map("review_data")
+  postedToGithub  Boolean   @default(false) @map("posted_to_github")
+  githubCommentId String?   @map("github_comment_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  pullRequest PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+
+  @@map("pull_request_reviews")
 }

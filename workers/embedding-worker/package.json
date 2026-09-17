@@ -8,11 +8,16 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@babel/parser": "^8.0.4",
+    "@babel/traverse": "^8.0.4",
+    "@prisma/client": "^5.17.0",
+    "axios": "^1.7.2",
     "bull": "^4.15.0",
-    "ioredis": "^5.4.1",
-    "axios": "^1.7.2"
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.4.1"
   },
   "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
     "@types/node": "^20.14.12",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.4"

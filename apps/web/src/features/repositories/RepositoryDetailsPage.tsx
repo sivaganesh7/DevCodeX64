@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiClient from '../../lib/api-client';
-import { Folder, File, ArrowLeft, ChevronRight, Play, Loader2, AlertCircle, Activity, LayoutDashboard, Bug, Shield } from 'lucide-react';
+import { Folder, File, ArrowLeft, ChevronRight, Play, Loader2, AlertCircle, Activity, LayoutDashboard, Bug, Shield, MessageSquare, Sparkles } from 'lucide-react';
 import { RepositoryOverviewPage } from './RepositoryOverviewPage';
 import { RepositoryIssuesPage } from './RepositoryIssuesPage';
 import { SecurityOverview } from '../security/SecurityOverview';
@@ -9,6 +9,8 @@ import { DependenciesList } from '../security/DependenciesList';
 import { VulnerabilitiesList } from '../security/VulnerabilitiesList';
 import { SecretsList } from '../security/SecretsList';
 import { RiskIntelligence } from '../analysis/components/RiskIntelligence';
+import { AssistantChat } from '../assistant/components/AssistantChat';
+import { CodeReviewWorkspace } from '../code-review/components/CodeReviewWorkspace';
 
 interface TreeItem {
   path: string;
@@ -55,7 +57,7 @@ export function RepositoryDetailsPage() {
   const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK'>('FILES');
+  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK' | 'ASSISTANT' | 'REVIEW'>('FILES');
 
   useEffect(() => {
     if (!owner || !repo) return;
@@ -291,6 +293,18 @@ export function RepositoryDetailsPage() {
         >
           <Activity size={16} /> Risk
         </button>
+        <button
+          onClick={() => setActiveTab('ASSISTANT')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'ASSISTANT' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <MessageSquare size={16} /> Assistant
+        </button>
+        <button
+          onClick={() => setActiveTab('REVIEW')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'REVIEW' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <Sparkles size={16} /> Review
+        </button>
       </div>
 
       {error ? (
@@ -376,7 +390,17 @@ export function RepositoryDetailsPage() {
                   <span className="text-sm font-medium text-white/80 truncate">
                     {selectedFile ? selectedFile : 'No file selected'}
                   </span>
-                  {selectedFile && <span className="text-xs text-white/30 px-2 py-1 rounded bg-white/5">READ-ONLY</span>}
+                  {selectedFile && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setActiveTab('REVIEW')}
+                        className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded transition-colors"
+                      >
+                        <Sparkles size={13} /> Review File
+                      </button>
+                      <span className="text-xs text-white/30 px-2 py-1 rounded bg-white/5">READ-ONLY</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 overflow-hidden flex flex-col">
                   {renderContent()}
@@ -408,6 +432,33 @@ export function RepositoryDetailsPage() {
           {activeTab === 'RISK' && (
             <div className="flex flex-col h-full overflow-y-auto">
               <RiskIntelligence owner={owner!} repo={repo!} />
+            </div>
+          )}
+
+          {activeTab === 'ASSISTANT' && (
+            <div className="flex flex-col h-full">
+              <AssistantChat
+                owner={owner!}
+                repo={repo!}
+                onOpenFile={(filePath) => {
+                  setActiveTab('FILES');
+                  handleFileClick(filePath);
+                }}
+              />
+            </div>
+          )}
+
+          {activeTab === 'REVIEW' && (
+            <div className="flex flex-col h-full overflow-y-auto pr-1">
+              <CodeReviewWorkspace
+                owner={owner!}
+                repo={repo!}
+                initialFilePath={selectedFile || undefined}
+                onOpenFile={(filePath) => {
+                  setActiveTab('FILES');
+                  handleFileClick(filePath);
+                }}
+              />
             </div>
           )}
         </div>

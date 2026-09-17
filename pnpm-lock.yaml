@@ -307,16 +307,31 @@ importers:
 
   workers/embedding-worker:
     dependencies:
+      '@babel/parser':
+        specifier: ^8.0.4
+        version: 8.0.4
+      '@babel/traverse':
+        specifier: ^8.0.4
+        version: 8.0.4
+      '@prisma/client':
+        specifier: ^5.17.0
+        version: 5.17.0(prisma@5.17.0)
       axios:
         specifier: ^1.7.2
         version: 1.19.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       bull:
         specifier: ^4.15.0
         version: 4.16.5(supports-color@8.1.1)
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
       ioredis:
         specifier: ^5.4.1
         version: 5.11.1(supports-color@8.1.1)
     devDependencies:
+      '@types/babel__traverse':
+        specifier: ^7.28.0
+        version: 7.28.0
       '@types/node':
         specifier: ^20.14.12
         version: 20.19.43

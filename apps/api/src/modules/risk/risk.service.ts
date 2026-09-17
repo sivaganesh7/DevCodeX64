@@ -1,13 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { RepositoriesService } from '../repositories/repositories.service';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class RiskService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly repositoriesService: RepositoriesService,
   ) {}
+
+  private async checkAccess(userId: string, repositoryId: string) {
+    const repo = await this.prisma.repository.findFirst({
+      where: { id: repositoryId, userId },
+    });
+    if (!repo) {
+      throw new UnauthorizedException('Access to repository denied');
+    }
+    return repo;
+  }
 
   async getRepoRiskOverview(userId: string, analysisId: string) {
     // Verify access to the analysis
@@ -20,8 +28,7 @@ export class RiskService {
       throw new NotFoundException('Analysis not found');
     }
 
-    // Verify user owns the repo via GitHubIntegration or directly
-    await this.repositoriesService.checkAccess(userId, analysis.repositoryId);
+    await this.checkAccess(userId, analysis.repositoryId);
 
     // Get all predictions for this analysis
     const predictions = await this.prisma.mLRiskPrediction.findMany({
@@ -33,10 +40,10 @@ export class RiskService {
     }
 
     const highRiskFiles = predictions.filter(
-      p => p.riskLevel === 'HIGH' || p.riskLevel === 'CRITICAL'
+      (p: { riskLevel: string }) => p.riskLevel === 'HIGH' || p.riskLevel === 'CRITICAL'
     ).length;
 
-    const totalProb = predictions.reduce((acc, curr) => acc + curr.riskProbability, 0);
+    const totalProb = predictions.reduce((acc: number, curr: { riskProbability: number }) => acc + curr.riskProbability, 0);
     const averageRiskProbability = totalProb / predictions.length;
 
     let repoRiskLevel = 'LOW';
@@ -63,7 +70,7 @@ export class RiskService {
       throw new NotFoundException('Analysis not found');
     }
 
-    await this.repositoriesService.checkAccess(userId, analysis.repositoryId);
+    await this.checkAccess(userId, analysis.repositoryId);
 
     const predictions = await this.prisma.mLRiskPrediction.findMany({
       where: { analysisId },
@@ -89,7 +96,7 @@ export class RiskService {
       throw new NotFoundException('Analysis not found');
     }
 
-    await this.repositoriesService.checkAccess(userId, analysis.repositoryId);
+    await this.checkAccess(userId, analysis.repositoryId);
 
     const prediction = await this.prisma.mLRiskPrediction.findUnique({
       where: {

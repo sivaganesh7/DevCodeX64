@@ -123,4 +123,22 @@ export class GitHubService {
 
     return this.githubClient.getFileContents(integration.installationId, owner, repo, path, branch);
   }
+
+  async getPullRequest(userId: string, owner: string, repo: string, pullNumber: number) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+
+    return this.githubClient.getPullRequest(integration.installationId, owner, repo, pullNumber);
+  }
+
+  async getPullRequestDiff(userId: string, owner: string, repo: string, pullNumber: number) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+
+    return this.githubClient.getPullRequestDiff(integration.installationId, owner, repo, pullNumber);
+  }
 }

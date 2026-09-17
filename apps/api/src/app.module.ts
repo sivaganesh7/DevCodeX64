@@ -11,6 +11,8 @@ import { IngestionModule } from './modules/ingestion/ingestion.module'
 import { AnalysisModule } from './modules/analysis/analysis.module'
 import { SecurityModule } from './modules/security/security.module'
 import { RiskModule } from './modules/risk/risk.module'
+import { AssistantModule } from './modules/assistant/assistant.module'
+import { CodeReviewModule } from './modules/code-review/code-review.module'
 import { BullModule } from '@nestjs/bull'
 
 /**
@@ -41,6 +43,8 @@ import { BullModule } from '@nestjs/bull'
     AnalysisModule,
     SecurityModule,
     RiskModule,
+    AssistantModule,
+    CodeReviewModule,
     // Feature modules registered in subsequent phases — DO NOT add prematurely
   ],
 })

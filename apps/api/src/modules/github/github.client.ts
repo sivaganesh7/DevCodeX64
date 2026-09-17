@@ -120,4 +120,43 @@ export class GitHubClient {
       throw error;
     }
   }
+
+  /**
+   * Fetch pull request metadata
+   */
+  async getPullRequest(installationId: string | number, owner: string, repo: string, pullNumber: number) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: pullNumber,
+      });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to fetch pull request #${pullNumber} for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch pull request unified diff
+   */
+  async getPullRequestDiff(installationId: string | number, owner: string, repo: string, pullNumber: number): Promise<string> {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: pullNumber,
+        mediaType: {
+          format: 'diff',
+        },
+      });
+      return response.data as unknown as string;
+    } catch (error) {
+      this.logger.error(`Failed to fetch pull request diff for #${pullNumber} in ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
 }

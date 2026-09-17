@@ -253,45 +253,45 @@ Deliverables:
 **Depends on:** Phase 4 (needs file content)
 
 Deliverables:
-- [ ] Code chunking pipeline (AST-aware)
-- [ ] Embedding generation (OpenAI or equivalent)
-- [ ] pgvector storage (code_embeddings table)
-- [ ] Similarity retrieval with source metadata
-- [ ] Context construction with prompt injection protection
-- [ ] LLM response generation
-- [ ] POST /ai/rag/query
-- [ ] POST /api/repositories/:id/assistant/conversations
-- [ ] POST /api/repositories/:id/assistant/conversations/:id/messages
-- [ ] Frontend: /assistant page with chat UI and source citations
+- [x] Code chunking pipeline (AST-aware)
+- [x] Embedding generation (OpenAI or equivalent)
+- [x] pgvector storage (code_embeddings / code_chunks table)
+- [x] Similarity retrieval with source metadata
+- [x] Context construction with prompt injection protection
+- [x] LLM response generation
+- [x] POST /ai/rag/query
+- [x] POST /api/repositories/:id/assistant/conversations
+- [x] POST /api/repositories/:id/assistant/conversations/:id/messages
+- [x] Frontend: /assistant page with chat UI and source citations
 
 ---
 
 ### PHASE 9 — Intelligent Code Review
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 8
 
 Deliverables:
-- [ ] File code review (AI structured output)
-- [ ] PR diff code review
-- [ ] POST /ai/review
-- [ ] POST /api/repositories/:id/review/file
-- [ ] POST /api/repositories/:id/review/pr
-- [ ] Structured review output validated against schema
-- [ ] Frontend: /review page
+- [x] File code review (AI structured output)
+- [x] PR diff code review
+- [x] POST /ai/review
+- [x] POST /api/repositories/:id/review/file
+- [x] POST /api/repositories/:id/review/pr
+- [x] Structured review output validated against schema
+- [x] Frontend: /review page
 
 ---
 
 ### PHASE 10 — AI Engineering Agent
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 9
 
 Deliverables:
-- [ ] Agent orchestrator (ReAct loop)
-- [ ] Tool registry (all tools from AI_ARCHITECTURE.md)
-- [ ] Tool permission enforcement
-- [ ] POST /ai/agent/run
-- [ ] POST /api/repositories/:id/assistant/agent (orchestrates)
-- [ ] Frontend: agent mode in assistant page
+- [x] Agent orchestrator (ReAct loop)
+- [x] Tool registry (all tools from AI_ARCHITECTURE.md)
+- [x] Tool permission enforcement
+- [x] POST /ai/agent/run
+- [x] POST /api/repositories/:id/assistant/agent (orchestrates)
+- [x] Frontend: agent mode in assistant page
 
 ---
 
