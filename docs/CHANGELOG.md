@@ -128,3 +128,60 @@ Format: [PHASE X] [date] description
   - Added route `/repositories/:owner/:repo/pull-requests` in `apps/web/src/app/router.tsx`.
   - Added `Pull Requests` tab (`PRS`) to `RepositoryDetailsPage.tsx`.
   - Added unit test suite `PullRequestsPage.test.tsx` in `apps/web` (all passed).
+
+## [PHASE 14] 2026-09-17 - CI/CD Intelligence
+
+### Added
+- `apps/api/src/modules/github`:
+  - Added GitHub Actions API methods to `GitHubClient` and `GitHubService`: `listWorkflows`, `listWorkflowRuns`, `getWorkflowRun`, `listJobsForWorkflowRun`, `reRunWorkflow`, `cancelWorkflowRun`.
+- `apps/api/src/modules/ci-cd`:
+  - `CiCdService` & `CiCdController`:
+    - `GET /api/repositories/:id/ci-cd/workflows`: Workflows metadata.
+    - `GET /api/repositories/:id/ci-cd/runs`: Filterable, paginated workflow executions.
+    - `GET /api/repositories/:id/ci-cd/runs/:runId`: Detailed run inspector with job breakdowns, step durations, and execution logs.
+    - `GET /api/repositories/:id/ci-cd/health`: Real-time pipeline health metrics (overall status, success rate, average duration, MTTR, active workflows).
+    - `GET /api/repositories/:id/ci-cd/failure-trends`: 7-day trend breakdown, top failing workflows, flakiness score, and failure trigger distribution.
+    - `POST /api/repositories/:id/ci-cd/runs/:runId/rerun`: Re-run workflow execution.
+    - `POST /api/repositories/:id/ci-cd/runs/:runId/analyze`: AI failure diagnosis categorizing root causes (`TEST_FAILURE`, `BUILD_ERROR`, `DEPENDENCY_ISSUE`, `LINT_SYNTAX`, `ENVIRONMENT`), explaining impacts, suggesting fixes, and providing local CLI commands.
+  - Registered `CiCdModule` in `app.module.ts`.
+  - Added comprehensive unit test suite `ci-cd.service.spec.ts` (all passed).
+- `apps/web/src/features/ci-cd`:
+  - `services/ciCdApi.ts`: Client API layer for all CI/CD intelligence endpoints.
+  - `components/PipelineHealthCards.tsx`: Pipeline health cards (Status badge, Success Rate meter, Average Duration, MTTR, Execution Activity, Latest Run snapshot).
+  - `components/FailureTrendsChart.tsx`: 7-day trend bar chart, failure hotspots ranking with fail rates, and failure trigger breakdown.
+  - `components/WorkflowRunsList.tsx`: Searchable runs table with status filters, branch filter, commit SHA, author, and duration.
+  - `components/RunDetailsDrawer.tsx`: Slide-over inspector displaying jobs, step execution timeline, AI failure diagnosis card, and workflow re-run triggers.
+  - `CiCdPage.tsx`: Dedicated CI/CD Intelligence workspace.
+  - Registered `/repositories/:owner/:repo/ci-cd` route in `router.tsx`.
+  - Added `CI/CD` tab (`CICD`) to `RepositoryDetailsPage.tsx`.
+  - Added CI/CD Pipeline Health widget to `RepositoryOverviewPage.tsx` with quick status and navigation link.
+  - Added unit and component test suite `CiCdPage.test.tsx` (all passed).
+
+## [PHASE 15] 2026-09-17 - Dashboard + UX Refinement
+
+### Added
+- `apps/api/src/modules/dashboard`:
+  - `DashboardController` & `DashboardService` (`GET /api/dashboard/overview`):
+    - Computes platform-wide multi-repository intelligence metrics: overall codebase health score, total tracked repositories, critical/high security vulnerabilities, pending pull requests, completed analyses, generated tests, and documentation artifacts.
+    - Generates repository cards with health score meters, maintainability/complexity, vulnerability badges, and latest analysis status.
+    - Provides chronological cross-repository activity stream (analysis completions, PR reviews, test suites, documentation, CI runs).
+    - Registered `DashboardModule` in `app.module.ts`.
+    - Added unit test suite `dashboard.service.spec.ts` (all passed).
+- `apps/web/src/components/common`:
+  - `EmptyState.tsx`: Reusable empty state component with configurable icons, titles, descriptions, and primary/secondary actions.
+  - `LoadingSkeleton.tsx`: Unified shimmer skeleton loaders for cards, tables, metrics, and lists.
+  - `ErrorState.tsx`: Reusable error boundary component with retry actions and error messaging.
+- `apps/web/src/features/dashboard`:
+  - `services/dashboardApi.ts`: Client API layer for multi-repo dashboard overview.
+  - `DashboardPage.tsx`: Complete overhaul of `/dashboard` with:
+    - 5 executive multi-repo metric cards (Codebase Health %, Repositories, Security Hotspots, Open PRs, CI/CD Pipelines).
+    - Quick Feature Launchpad (AI Agent, Test Generator, Evidence Documentation, CI/CD Intelligence).
+    - Connected Repositories Grid with search, category filtering (`All`, `Optimal`, `Needs Review`, `Private`), quality indicator chips, and 1-click feature access links.
+    - Live cross-repository activity feed stream.
+    - Platform Services status footer checking API Gateway, Database, FastAPI engine, and Redis workers.
+  - Added unit and component test suite `DashboardPage.test.tsx` (all passed).
+- `apps/web/src/components/layout`:
+  - `TopBar.tsx` & `Sidebar.tsx`: Added responsive mobile menu toggle with keyboard focus handling, slide-in overlay drawer, and accessibility `aria-label` attributes.
+  - `RootLayout.tsx`: State-driven mobile sidebar drawer.
+
+

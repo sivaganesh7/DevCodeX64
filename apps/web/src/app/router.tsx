@@ -13,9 +13,10 @@ import { ReviewPage } from "../features/code-review/ReviewPage"
 import { TestGenerationPage } from "../features/test-generation/TestGenerationPage"
 import { DocumentationPage } from "../features/documentation/DocumentationPage"
 import { PullRequestsPage } from "../features/pull-requests/PullRequestsPage"
+import { CiCdPage } from "../features/ci-cd/CiCdPage"
 
 /**
- * Application router — Phase 13
+ * Application router — Phase 14
  */
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
           { path: "repositories/:owner/:repo/tests", element: <TestGenerationPage /> },
           { path: "repositories/:owner/:repo/documentation", element: <DocumentationPage /> },
           { path: "repositories/:owner/:repo/pull-requests", element: <PullRequestsPage /> },
+          { path: "repositories/:owner/:repo/ci-cd", element: <CiCdPage /> },
         ]
       }
     ],

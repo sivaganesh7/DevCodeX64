@@ -339,29 +339,29 @@ Deliverables:
 ---
 
 ### PHASE 14 — CI/CD Intelligence
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 13
 
 Deliverables:
-- [ ] GitHub Actions workflow data via API
-- [ ] Pipeline health metrics
-- [ ] Failure trend analysis
-- [ ] Frontend: CI/CD section in dashboard
+- [x] GitHub Actions workflow data via API
+- [x] Pipeline health metrics
+- [x] Failure trend analysis
+- [x] Frontend: CI/CD section in dashboard
 
 ---
 
 ### PHASE 15 — Dashboard + UX Refinement
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phases 2-14
 
 Deliverables:
-- [ ] Polished /dashboard with multi-repo overview
-- [ ] All pages verified in browser
-- [ ] Responsive layout tested
-- [ ] Accessibility audit
-- [ ] Empty states for all pages
-- [ ] Loading states for all async operations
-- [ ] Error states with retry actions
+- [x] Polished /dashboard with multi-repo overview
+- [x] All pages verified in browser
+- [x] Responsive layout tested
+- [x] Accessibility audit
+- [x] Empty states for all pages
+- [x] Loading states for all async operations
+- [x] Error states with retry actions
 
 ---
 

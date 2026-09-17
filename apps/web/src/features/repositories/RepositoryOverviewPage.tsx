@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
 import apiClient from '../../lib/api-client';
-import { Activity, Code2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Activity, Code2, AlertTriangle, CheckCircle2, PlayCircle, ArrowRight, Clock, ShieldCheck } from 'lucide-react';
+import { ciCdApi, PipelineHealth } from '../ci-cd/services/ciCdApi';
 
-export function RepositoryOverviewPage({ owner, repo }: { owner: string; repo: string }) {
+export function RepositoryOverviewPage({
+  owner,
+  repo,
+  onNavigateToCiCd,
+}: {
+  owner: string;
+  repo: string;
+  onNavigateToCiCd?: () => void;
+}) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [analysis, setAnalysis] = useState<any>(null);
+  const [ciHealth, setCiHealth] = useState<PipelineHealth | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,6 +27,12 @@ export function RepositoryOverviewPage({ owner, repo }: { owner: string; repo: s
         }
       })
       .finally(() => setIsLoading(false));
+
+    ciCdApi.getPipelineHealth(owner, repo)
+      .then(res => setCiHealth(res))
+      .catch(() => {
+        // CI/CD health can be optional if not set up
+      });
   }, [owner, repo]);
 
   if (isLoading) return <div className="p-8 text-white/50 text-center animate-pulse">Loading analysis...</div>;
@@ -85,6 +101,86 @@ export function RepositoryOverviewPage({ owner, repo }: { owner: string; repo: s
             ))}
           </div>
         </div>
+      </div>
+
+      {/* CI/CD Intelligence Section */}
+      <div className="bg-[#12121e] border border-white/10 rounded-xl p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <PlayCircle size={20} className="text-indigo-400" />
+              CI/CD Pipeline Intelligence
+            </h3>
+            <p className="text-xs text-white/50 mt-0.5">
+              Continuous integration status, workflow run analytics, and health telemetry
+            </p>
+          </div>
+
+          {onNavigateToCiCd && (
+            <button
+              onClick={onNavigateToCiCd}
+              className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-semibold bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-lg transition-colors shrink-0"
+            >
+              <span>Explore CI/CD Workflows</span>
+              <ArrowRight size={13} />
+            </button>
+          )}
+        </div>
+
+        {ciHealth ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-lg bg-black/20 border border-white/5">
+              <span className="text-xs text-white/40 uppercase font-semibold">Status</span>
+              <div className="mt-1 text-lg font-bold text-emerald-400 flex items-center gap-1.5">
+                <ShieldCheck size={16} />
+                <span>{ciHealth.healthStatus}</span>
+              </div>
+              <div className="text-[11px] text-white/40 mt-1">
+                {ciHealth.activeWorkflowsCount} active workflows
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-black/20 border border-white/5">
+              <span className="text-xs text-white/40 uppercase font-semibold">Success Rate</span>
+              <div className="mt-1 text-lg font-bold text-white">
+                {ciHealth.successRate}%
+              </div>
+              <div className="text-[11px] text-white/40 mt-1">
+                {ciHealth.successCount} passed / {ciHealth.totalRuns} runs
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-black/20 border border-white/5">
+              <span className="text-xs text-white/40 uppercase font-semibold">Avg Duration</span>
+              <div className="mt-1 text-lg font-bold text-cyan-400 flex items-center gap-1.5">
+                <Clock size={16} />
+                <span>{ciHealth.averageDurationSeconds}s</span>
+              </div>
+              <div className="text-[11px] text-white/40 mt-1">
+                MTTR: ~{ciHealth.mttrSeconds}s
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-black/20 border border-white/5">
+              <span className="text-xs text-white/40 uppercase font-semibold">Latest Run</span>
+              <div className="mt-1 text-sm font-semibold text-white truncate">
+                {ciHealth.lastRun ? `#${ciHealth.lastRun.runNumber} ${ciHealth.lastRun.workflowName}` : 'None'}
+              </div>
+              <div className="text-[11px] text-white/40 mt-1 truncate">
+                {ciHealth.lastRun ? `${ciHealth.lastRun.headBranch} (${ciHealth.lastRun.conclusion || ciHealth.lastRun.status})` : 'No runs recorded'}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 rounded-lg bg-black/20 border border-white/5 text-xs text-white/40 flex items-center justify-between">
+            <span>Loading CI/CD telemetry...</span>
+            {onNavigateToCiCd && (
+              <button onClick={onNavigateToCiCd} className="text-indigo-400 hover:underline">
+                View CI/CD Hub
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

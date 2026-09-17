@@ -17,6 +17,8 @@ import { TestGenerationModule } from './modules/test-generation/test-generation.
 import { DocumentationModule } from './modules/documentation/documentation.module'
 import { PullRequestsModule } from './modules/pull-requests/pull-requests.module'
 import { WebhooksModule } from './modules/webhooks/webhooks.module'
+import { CiCdModule } from './modules/ci-cd/ci-cd.module'
+import { DashboardModule } from './modules/dashboard/dashboard.module'
 import { BullModule } from '@nestjs/bull'
 
 /**
@@ -53,6 +55,8 @@ import { BullModule } from '@nestjs/bull'
     DocumentationModule,
     PullRequestsModule,
     WebhooksModule,
+    CiCdModule,
+    DashboardModule,
     // Feature modules registered in subsequent phases — DO NOT add prematurely
   ],
 })

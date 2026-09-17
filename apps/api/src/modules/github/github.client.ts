@@ -184,4 +184,138 @@ export class GitHubClient {
       throw error;
     }
   }
+
+  /**
+   * List workflows in repository
+   */
+  async listWorkflows(installationId: string | number, owner: string, repo: string) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.actions.listRepoWorkflows({
+        owner,
+        repo,
+      });
+      return response.data.workflows;
+    } catch (error) {
+      this.logger.error(`Failed to list workflows for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * List workflow runs
+   */
+  async listWorkflowRuns(
+    installationId: string | number,
+    owner: string,
+    repo: string,
+    params?: {
+      workflowId?: number | string;
+      status?: any;
+      branch?: string;
+      page?: number;
+      per_page?: number;
+    },
+  ) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      if (params?.workflowId) {
+        const response = await octokit.rest.actions.listWorkflowRuns({
+          owner,
+          repo,
+          workflow_id: params.workflowId,
+          status: params.status,
+          branch: params.branch,
+          page: params.page,
+          per_page: params.per_page,
+        });
+        return response.data;
+      } else {
+        const response = await octokit.rest.actions.listWorkflowRunsForRepo({
+          owner,
+          repo,
+          status: params?.status,
+          branch: params?.branch,
+          page: params?.page,
+          per_page: params?.per_page,
+        });
+        return response.data;
+      }
+    } catch (error) {
+      this.logger.error(`Failed to list workflow runs for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get single workflow run
+   */
+  async getWorkflowRun(installationId: string | number, owner: string, repo: string, runId: number) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.actions.getWorkflowRun({
+        owner,
+        repo,
+        run_id: runId,
+      });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to get workflow run #${runId} for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * List jobs for workflow run
+   */
+  async listJobsForWorkflowRun(installationId: string | number, owner: string, repo: string, runId: number) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.actions.listJobsForWorkflowRun({
+        owner,
+        repo,
+        run_id: runId,
+      });
+      return response.data.jobs;
+    } catch (error) {
+      this.logger.error(`Failed to list jobs for run #${runId} for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Re-run a workflow
+   */
+  async reRunWorkflow(installationId: string | number, owner: string, repo: string, runId: number) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.actions.reRunWorkflow({
+        owner,
+        repo,
+        run_id: runId,
+      });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to re-run workflow #${runId} for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel a workflow run
+   */
+  async cancelWorkflowRun(installationId: string | number, owner: string, repo: string, runId: number) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.actions.cancelWorkflowRun({
+        owner,
+        repo,
+        run_id: runId,
+      });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to cancel workflow #${runId} for ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
 }

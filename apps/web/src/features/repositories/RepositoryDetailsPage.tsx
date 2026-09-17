@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiClient from '../../lib/api-client';
-import { Folder, File, ArrowLeft, ChevronRight, Play, Loader2, AlertCircle, Activity, LayoutDashboard, Bug, Shield, MessageSquare, Sparkles, FlaskConical, BookOpen, GitPullRequest } from 'lucide-react';
+import { Folder, File, ArrowLeft, ChevronRight, Play, Loader2, AlertCircle, Activity, LayoutDashboard, Bug, Shield, MessageSquare, Sparkles, FlaskConical, BookOpen, GitPullRequest, PlayCircle } from 'lucide-react';
 import { RepositoryOverviewPage } from './RepositoryOverviewPage';
 import { RepositoryIssuesPage } from './RepositoryIssuesPage';
 import { SecurityOverview } from '../security/SecurityOverview';
@@ -14,6 +14,7 @@ import { CodeReviewWorkspace } from '../code-review/components/CodeReviewWorkspa
 import { TestGeneratorWorkspace } from '../test-generation/components/TestGeneratorWorkspace';
 import { DocumentationGeneratorWorkspace } from '../documentation/components/DocumentationGeneratorWorkspace';
 import { PullRequestsPage } from '../pull-requests/PullRequestsPage';
+import { CiCdPage } from '../ci-cd/CiCdPage';
 
 interface TreeItem {
   path: string;
@@ -60,7 +61,7 @@ export function RepositoryDetailsPage() {
   const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK' | 'ASSISTANT' | 'REVIEW' | 'TESTS' | 'DOCS' | 'PRS'>('FILES');
+  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK' | 'ASSISTANT' | 'REVIEW' | 'TESTS' | 'DOCS' | 'PRS' | 'CICD'>('FILES');
 
   useEffect(() => {
     if (!owner || !repo) return;
@@ -326,6 +327,12 @@ export function RepositoryDetailsPage() {
         >
           <GitPullRequest size={16} /> Pull Requests
         </button>
+        <button
+          onClick={() => setActiveTab('CICD')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'CICD' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <PlayCircle size={16} /> CI/CD
+        </button>
       </div>
 
       {error ? (
@@ -443,7 +450,11 @@ export function RepositoryDetailsPage() {
           )}
 
           {activeTab === 'OVERVIEW' && (
-            <RepositoryOverviewPage owner={owner!} repo={repo!} />
+            <RepositoryOverviewPage
+              owner={owner!}
+              repo={repo!}
+              onNavigateToCiCd={() => setActiveTab('CICD')}
+            />
           )}
 
           {activeTab === 'ISSUES' && (
@@ -518,6 +529,12 @@ export function RepositoryDetailsPage() {
           {activeTab === 'PRS' && (
             <div className="flex flex-col h-full overflow-y-auto pr-1">
               <PullRequestsPage owner={owner!} repo={repo!} isTab={true} />
+            </div>
+          )}
+
+          {activeTab === 'CICD' && (
+            <div className="flex flex-col h-full overflow-y-auto pr-1">
+              <CiCdPage owner={owner!} repo={repo!} isTab={true} />
             </div>
           )}
         </div>

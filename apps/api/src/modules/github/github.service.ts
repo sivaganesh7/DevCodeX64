@@ -150,4 +150,63 @@ export class GitHubService {
 
     return this.githubClient.createComment(integration.installationId, owner, repo, issueNumber, body);
   }
+
+  async listWorkflows(userId: string, owner: string, repo: string) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+    return this.githubClient.listWorkflows(integration.installationId, owner, repo);
+  }
+
+  async listWorkflowRuns(
+    userId: string,
+    owner: string,
+    repo: string,
+    params?: {
+      workflowId?: number | string;
+      status?: any;
+      branch?: string;
+      page?: number;
+      per_page?: number;
+    },
+  ) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+    return this.githubClient.listWorkflowRuns(integration.installationId, owner, repo, params);
+  }
+
+  async getWorkflowRun(userId: string, owner: string, repo: string, runId: number) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+    return this.githubClient.getWorkflowRun(integration.installationId, owner, repo, runId);
+  }
+
+  async listJobsForWorkflowRun(userId: string, owner: string, repo: string, runId: number) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+    return this.githubClient.listJobsForWorkflowRun(integration.installationId, owner, repo, runId);
+  }
+
+  async reRunWorkflow(userId: string, owner: string, repo: string, runId: number) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+    return this.githubClient.reRunWorkflow(integration.installationId, owner, repo, runId);
+  }
+
+  async cancelWorkflowRun(userId: string, owner: string, repo: string, runId: number) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+    return this.githubClient.cancelWorkflowRun(integration.installationId, owner, repo, runId);
+  }
 }
