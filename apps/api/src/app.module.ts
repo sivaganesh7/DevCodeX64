@@ -13,6 +13,10 @@ import { SecurityModule } from './modules/security/security.module'
 import { RiskModule } from './modules/risk/risk.module'
 import { AssistantModule } from './modules/assistant/assistant.module'
 import { CodeReviewModule } from './modules/code-review/code-review.module'
+import { TestGenerationModule } from './modules/test-generation/test-generation.module'
+import { DocumentationModule } from './modules/documentation/documentation.module'
+import { PullRequestsModule } from './modules/pull-requests/pull-requests.module'
+import { WebhooksModule } from './modules/webhooks/webhooks.module'
 import { BullModule } from '@nestjs/bull'
 
 /**
@@ -45,6 +49,10 @@ import { BullModule } from '@nestjs/bull'
     RiskModule,
     AssistantModule,
     CodeReviewModule,
+    TestGenerationModule,
+    DocumentationModule,
+    PullRequestsModule,
+    WebhooksModule,
     // Feature modules registered in subsequent phases — DO NOT add prematurely
   ],
 })

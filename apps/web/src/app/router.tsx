@@ -10,9 +10,12 @@ import { RepositoriesPage } from "../features/repositories/RepositoriesPage"
 import { RepositoryDetailsPage } from "../features/repositories/RepositoryDetailsPage"
 import { AssistantPage } from "../features/assistant/AssistantPage"
 import { ReviewPage } from "../features/code-review/ReviewPage"
+import { TestGenerationPage } from "../features/test-generation/TestGenerationPage"
+import { DocumentationPage } from "../features/documentation/DocumentationPage"
+import { PullRequestsPage } from "../features/pull-requests/PullRequestsPage"
 
 /**
- * Application router — Phase 9
+ * Application router — Phase 13
  */
 export const router = createBrowserRouter([
   {
@@ -37,6 +40,9 @@ export const router = createBrowserRouter([
           { path: "repositories/:owner/:repo", element: <RepositoryDetailsPage /> },
           { path: "repositories/:owner/:repo/assistant", element: <AssistantPage /> },
           { path: "repositories/:owner/:repo/review", element: <ReviewPage /> },
+          { path: "repositories/:owner/:repo/tests", element: <TestGenerationPage /> },
+          { path: "repositories/:owner/:repo/documentation", element: <DocumentationPage /> },
+          { path: "repositories/:owner/:repo/pull-requests", element: <PullRequestsPage /> },
         ]
       }
     ],

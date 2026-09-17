@@ -159,4 +159,29 @@ export class GitHubClient {
       throw error;
     }
   }
+
+  /**
+   * Post a comment on a pull request or issue
+   */
+  async createComment(
+    installationId: string | number,
+    owner: string,
+    repo: string,
+    issueNumber: number,
+    body: string,
+  ) {
+    try {
+      const octokit = await this.getInstallationOctokit(installationId);
+      const response = await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        body,
+      });
+      return response.data;
+    } catch (error) {
+      this.logger.error(`Failed to post comment to #${issueNumber} in ${owner}/${repo}`, error);
+      throw error;
+    }
+  }
 }

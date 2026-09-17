@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiClient from '../../lib/api-client';
-import { Folder, File, ArrowLeft, ChevronRight, Play, Loader2, AlertCircle, Activity, LayoutDashboard, Bug, Shield, MessageSquare, Sparkles } from 'lucide-react';
+import { Folder, File, ArrowLeft, ChevronRight, Play, Loader2, AlertCircle, Activity, LayoutDashboard, Bug, Shield, MessageSquare, Sparkles, FlaskConical, BookOpen, GitPullRequest } from 'lucide-react';
 import { RepositoryOverviewPage } from './RepositoryOverviewPage';
 import { RepositoryIssuesPage } from './RepositoryIssuesPage';
 import { SecurityOverview } from '../security/SecurityOverview';
@@ -11,6 +11,9 @@ import { SecretsList } from '../security/SecretsList';
 import { RiskIntelligence } from '../analysis/components/RiskIntelligence';
 import { AssistantChat } from '../assistant/components/AssistantChat';
 import { CodeReviewWorkspace } from '../code-review/components/CodeReviewWorkspace';
+import { TestGeneratorWorkspace } from '../test-generation/components/TestGeneratorWorkspace';
+import { DocumentationGeneratorWorkspace } from '../documentation/components/DocumentationGeneratorWorkspace';
+import { PullRequestsPage } from '../pull-requests/PullRequestsPage';
 
 interface TreeItem {
   path: string;
@@ -57,7 +60,7 @@ export function RepositoryDetailsPage() {
   const [analysisJob, setAnalysisJob] = useState<any>(null);
   const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK' | 'ASSISTANT' | 'REVIEW'>('FILES');
+  const [activeTab, setActiveTab] = useState<'FILES' | 'OVERVIEW' | 'ISSUES' | 'SECURITY' | 'RISK' | 'ASSISTANT' | 'REVIEW' | 'TESTS' | 'DOCS' | 'PRS'>('FILES');
 
   useEffect(() => {
     if (!owner || !repo) return;
@@ -305,6 +308,24 @@ export function RepositoryDetailsPage() {
         >
           <Sparkles size={16} /> Review
         </button>
+        <button
+          onClick={() => setActiveTab('TESTS')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'TESTS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <FlaskConical size={16} /> Tests
+        </button>
+        <button
+          onClick={() => setActiveTab('DOCS')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'DOCS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <BookOpen size={16} /> Docs
+        </button>
+        <button
+          onClick={() => setActiveTab('PRS')}
+          className={`pb-3 text-sm font-medium transition-colors flex items-center gap-2 border-b-2 ${activeTab === 'PRS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/50 hover:text-white'}`}
+        >
+          <GitPullRequest size={16} /> Pull Requests
+        </button>
       </div>
 
       {error ? (
@@ -398,6 +419,18 @@ export function RepositoryDetailsPage() {
                       >
                         <Sparkles size={13} /> Review File
                       </button>
+                      <button
+                        onClick={() => setActiveTab('TESTS')}
+                        className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded transition-colors"
+                      >
+                        <FlaskConical size={13} /> Generate Tests
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('DOCS')}
+                        className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded transition-colors"
+                      >
+                        <BookOpen size={13} /> Generate Docs
+                      </button>
                       <span className="text-xs text-white/30 px-2 py-1 rounded bg-white/5">READ-ONLY</span>
                     </div>
                   )}
@@ -459,6 +492,32 @@ export function RepositoryDetailsPage() {
                   handleFileClick(filePath);
                 }}
               />
+            </div>
+          )}
+
+          {activeTab === 'TESTS' && (
+            <div className="flex flex-col h-full overflow-y-auto pr-1">
+              <TestGeneratorWorkspace
+                owner={owner!}
+                repo={repo!}
+                initialFilePath={selectedFile || undefined}
+              />
+            </div>
+          )}
+
+          {activeTab === 'DOCS' && (
+            <div className="flex flex-col h-full overflow-y-auto pr-1">
+              <DocumentationGeneratorWorkspace
+                owner={owner!}
+                repo={repo!}
+                initialFilePath={selectedFile || undefined}
+              />
+            </div>
+          )}
+
+          {activeTab === 'PRS' && (
+            <div className="flex flex-col h-full overflow-y-auto pr-1">
+              <PullRequestsPage owner={owner!} repo={repo!} isTab={true} />
             </div>
           )}
         </div>

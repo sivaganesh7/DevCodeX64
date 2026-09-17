@@ -25,6 +25,8 @@ model User {
   repositories      Repository[]
   Conversation      Conversation[]
   codeReviews       CodeReview[]
+  generatedTests    GeneratedTest[]
+  documentations    Documentation[]
 
   @@map("users")
 }
@@ -71,6 +73,8 @@ model Repository {
   Conversation      Conversation[]
   codeReviews       CodeReview[]
   pullRequests      PullRequest[]
+  generatedTests    GeneratedTest[]
+  documentations    Documentation[]
 
   @@map("repositories")
 }
@@ -453,3 +457,50 @@ model PullRequestReview {
 
   @@map("pull_request_reviews")
 }
+
+// Phase 11: Automated Test Generation + Safe Execution
+model GeneratedTest {
+  id              String    @id @default(uuid()) @db.Uuid
+  repositoryId    String    @map("repository_id") @db.Uuid
+  analysisId      String?   @map("analysis_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  filePath        String    @map("file_path")
+  functionName    String?   @map("function_name")
+  testContent     String    @map("test_content") @db.Text
+  language        String    // typescript, javascript, python
+  framework       String?   // jest, vitest, pytest
+  executionStatus String?   @default("pending") @map("execution_status") // pending, running, passed, failed, error, skipped
+  executionOutput String?   @map("execution_output") @db.Text
+  testCases       Json?     @map("test_cases")
+  executedAt      DateTime? @map("executed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId, filePath])
+  @@map("generated_tests")
+}
+
+// Phase 12: Automated Documentation Generation
+model Documentation {
+  id           String   @id @default(uuid()) @db.Uuid
+  repositoryId String   @map("repository_id") @db.Uuid
+  analysisId   String?  @map("analysis_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  docType      String   @map("doc_type") // README, API, ARCHITECTURE, FUNCTION, SETUP, DATABASE, DEVELOPER_GUIDE
+  title        String
+  content      String   @db.Text
+  filePath     String?  @map("file_path")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId, docType])
+  @@map("documentation_artifacts")
+}
+
+

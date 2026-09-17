@@ -57,15 +57,15 @@ app.add_middleware(
 app.include_router(health.router, prefix="/health", tags=["Health"])
 app.include_router(risk.router, tags=["Risk"])
 
-from app.api.routes import embeddings, rag, review, agent
+from app.api.routes import embeddings, rag, review, agent, tests, documentation
 app.include_router(embeddings.router,    prefix="/embed",         tags=["Embeddings"])
 app.include_router(rag.router,           prefix="/rag",           tags=["RAG"])
 app.include_router(review.router,        prefix="/review",        tags=["Code Review"])
 app.include_router(agent.router,         prefix="/agent",         tags=["Agent"])
-# from app.api.routes import ml, tests, documentation
+app.include_router(tests.router,         prefix="/tests",         tags=["Test Generation"])
+app.include_router(documentation.router, prefix="/documentation", tags=["Documentation"])
+# from app.api.routes import ml
 # app.include_router(ml.router,            prefix="/ml",            tags=["ML"])
-# app.include_router(tests.router,         prefix="/tests",         tags=["Test Generation"])
-# app.include_router(documentation.router, prefix="/documentation", tags=["Documentation"])
 
 
 @app.get("/", include_in_schema=False)

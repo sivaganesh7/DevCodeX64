@@ -141,4 +141,13 @@ export class GitHubService {
 
     return this.githubClient.getPullRequestDiff(integration.installationId, owner, repo, pullNumber);
   }
+
+  async createComment(userId: string, owner: string, repo: string, issueNumber: number, body: string) {
+    const integration = await this.getIntegration(userId);
+    if (!integration) {
+      throw new NotFoundException('GitHub integration not found');
+    }
+
+    return this.githubClient.createComment(integration.installationId, owner, repo, issueNumber, body);
+  }
 }

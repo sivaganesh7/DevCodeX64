@@ -296,45 +296,45 @@ Deliverables:
 ---
 
 ### PHASE 11 — Test Generation + Safe Execution
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 10
 
 Deliverables:
-- [ ] Test generation for TypeScript/Python functions
-- [ ] Sandboxed execution environment (Docker container)
-- [ ] Execution result capture and storage
-- [ ] POST /ai/tests/generate
-- [ ] POST /api/repositories/:id/tests/generate
-- [ ] POST /api/repositories/:id/tests/:id/execute
-- [ ] Frontend: /tests page
+- [x] Test generation for TypeScript/Python functions
+- [x] Sandboxed execution environment (Docker container)
+- [x] Execution result capture and storage
+- [x] POST /ai/tests/generate
+- [x] POST /api/repositories/:id/tests/generate
+- [x] POST /api/repositories/:id/tests/:id/execute
+- [x] Frontend: /tests page
 
 ---
 
 ### PHASE 12 — Documentation Generation
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 10
 
 Deliverables:
-- [ ] README generation
-- [ ] API documentation generation
-- [ ] Function documentation
-- [ ] POST /ai/documentation/generate
-- [ ] POST /api/repositories/:id/documentation/generate
-- [ ] Frontend: /documentation page
+- [x] README generation
+- [x] API documentation generation
+- [x] Function documentation
+- [x] POST /ai/documentation/generate
+- [x] POST /api/repositories/:id/documentation/generate
+- [x] Frontend: /documentation page
 
 ---
 
 ### PHASE 13 — PR Intelligence + Automation
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 9 + Phase 3 (webhooks)
 
 Deliverables:
-- [ ] GitHub webhook: pull_request events
-- [ ] Automatic PR analysis on open
-- [ ] AI review posted as GitHub PR comment
-- [ ] GET /api/repositories/:id/pull-requests
-- [ ] GET /api/repositories/:id/pull-requests/:id
-- [ ] Frontend: /pull-requests page
+- [x] GitHub webhook: pull_request events
+- [x] Automatic PR analysis on open
+- [x] AI review posted as GitHub PR comment
+- [x] GET /api/repositories/:id/pull-requests
+- [x] GET /api/repositories/:id/pull-requests/:id
+- [x] Frontend: /pull-requests page
 
 ---
 
